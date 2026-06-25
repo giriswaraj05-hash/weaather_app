@@ -1,169 +1,326 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weather Pro</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
+<script>
+  /* Apply saved theme before first paint, so Dark Mode truly stays on */
+  (function(){
+    try {
+      if (localStorage.getItem('themeMode') === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    } catch(e) {}
+  })();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Weather Pro</title>
+<link rel="stylesheet" href="style.css">
+
+<!-- PWA / "installable app" support -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#161b3a">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Weather Pro">
 </head>
 <body>
+<div class="stars"></div>
+<div class="app">
 
-  <div class="stars"></div>
-
-  <div class="app">
-    <header class="header">
-      <div class="header-left">
-        <button class="icon-btn" id="menuBtn">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-        <div class="city-block">
-          <div class="city-name" id="cityName">লোডিং...</div>
-          <div class="dots">
-            <span class="active"></span>
-            <span></span>
-          </div>
-        </div>
-      </div>
-      <div class="header-right">
-        <svg id="liveLocBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
-        <svg id="searchBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </div>
-    </header>
-
-    <div class="orb-wrap">
-      <div class="orb-ring"></div>
-      <div class="orb">
-        <div class="realfeel">RealFeel <span id="realfeel">--°</span></div>
-        <div class="temp-main"><span id="tempMain">--</span><span id="tempUnitLabel">°C</span></div>
-        <div class="condition-row">
-          <span id="conditionText">লোডিং...</span>
-          <div class="lo-hi">
-            <span class="hi" id="highTemp">--°</span> / <span class="lo" id="lowTemp">--°</span>
-          </div>
-        </div>
-        <div class="orb-icon" id="orbIcon"></div>
-        <div class="orb-stats">
-          <div>💨 <span id="windSpeed">--</span> (<span id="windDir">--</span>)</div>
-          <div>💧 <span id="humidityTop">--</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="precip-note" id="precipNote">বৃষ্টির কোনো সম্ভাবনা নেই</div>
-
-    <div class="card" id="hourlyCard">
-      <div class="card-head">
-        <div class="card-head-title">⏰ প্রতি ঘণ্টার পূর্বাভাস</div>
-      </div>
-      <div class="card-divider"></div>
-      <div class="hourly-row" id="hourlyRow"></div>
-    </div>
-
-    <div class="card" id="dailyCard">
-      <div class="card-head">
-        <div class="card-head-title">📅 আগামী কয়েকদিনের পূর্বাভাস</div>
-      </div>
-      <div class="daily-banner hidden" id="dailyBanner"></div>
-      <div id="dailyRows"></div>
-    </div>
-
-    <div class="card" id="aqCard">
-      <div class="card-head">
-        <div class="card-head-title">🍃 বায়ুর মান (AQI)</div>
-      </div>
-      <div class="card-divider"></div>
-      <div class="aq-top">
-        <div class="aq-emoji" id="aqEmoji">😐</div>
-        <div>
-          <div class="aq-num" id="aqNum">--</div>
-          <div class="aq-label" id="aqLabel">লোডিং...</div>
-          <div class="aq-pollutant">প্রধান দূষক: <span id="mainPollutant">PM2.5</span></div>
-        </div>
-      </div>
-      <div class="aq-bar"><div class="marker" id="aqMarker"></div></div>
-      <div class="aq-grid">
-        <div><div class="pollutant-name">PM2.5</div><div class="pollutant-bar" id="pm25Bar"></div><div class="pollutant-val" id="pm25Val">--</div></div>
-        <div><div class="pollutant-name">PM10</div><div class="pollutant-bar" id="pm10Bar"></div><div class="pollutant-val" id="pm10Val">--</div></div>
-        <div><div class="pollutant-name">NO₂</div><div class="pollutant-bar" id="no2Bar"></div><div class="pollutant-val" id="no2Val">--</div></div>
-        <div><div class="pollutant-name">O₃</div><div class="pollutant-bar" id="o3Bar"></div><div class="pollutant-val" id="o3Val">--</div></div>
-        <div><div class="pollutant-name">SO₂</div><div class="pollutant-bar" id="so2Bar"></div><div class="pollutant-val" id="so2Val">--</div></div>
-        <div><div class="pollutant-name">CO</div><div class="pollutant-bar" id="coBar"></div><div class="pollutant-val" id="coVal">--</div></div>
-      </div>
-    </div>
-
-    <div class="grid2">
-      <div class="mini-card" id="pressureWindGrid">
-        <div class="mini-card-title">💨 বাতাস ও চাপ</div>
-        <div class="stat-val" id="windSpeedVal">--</div>
-        <div class="stat-desc"><span id="windUnitLabel">km/h</span> চাপ: <span id="pressureVal">--</span> <span id="pressureUnitLabel">mbar</span></div>
-      </div>
-      <div class="mini-card" id="uvVisGrid">
-        <div class="mini-card-title">☀️ UV ইনডেক্স ও ভিজিবিলিটি</div>
-        <div class="stat-val" id="uvVal">--</div>
-        <div class="stat-desc"><span id="uvLabel">--</span> • দৃষ্টিসীমা: <span id="visVal">--</span></div>
-        <div class="stat-desc" id="uvDesc" style="font-size:11px; margin-top:4px;"></div>
-      </div>
-    </div>
-
-    <div class="grid2">
-      <div class="mini-card" id="precipHumGrid">
-        <div class="mini-card-title">💧 আর্দ্রতা ও অধঃক্ষেপণ</div>
-        <div class="stat-val" id="humidityVal">--</div>
-        <div class="stat-desc">আর্দ্রতা • গত ২৪ ঘণ্টায় বৃষ্টি: <span id="precipVal">--</span></div>
-      </div>
-      <div class="mini-card" id="sunMoonCard">
-        <div class="mini-card-title">🌙 সূর্য ও চন্দ্র</div>
-        <div class="stat-desc">সূর্যোদয়: <span id="sunrise">--</span></div>
-        <div class="stat-desc">সূর্যাস্ত: <span id="sunset">--</span></div>
-        <div class="stat-desc">দিন স্থায়িত্ব: <span id="dayLengthText">--</span></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="overlay" id="overlay"></div>
-  <div class="drawer" id="drawer">
-    <h1>Weather Pro</h1>
-    <div class="drawer-divider"></div>
-    <div class="drawer-item" id="installAppItem" style="display: none;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      <span>Install Weather App</span>
-    </div>
-    <div class="drawer-item" onclick="closeDrawer(); openSubpage('location')">📍 Manage Location</div>
-    <div class="drawer-item" onclick="closeDrawer(); openSubpage('customize')">🎨 Customize Layout</div>
-    <div class="drawer-item" onclick="closeDrawer(); openSubpage('units')">⚙️ Change Units</div>
-    <div class="drawer-item" onclick="closeDrawer(); openSubpage('settings')">🔧 App Settings</div>
-    <div class="drawer-divider"></div>
-    <div class="drawer-item" onclick="closeDrawer(); openSubpage('rate')">★ Rate This App</div>
-    <div class="drawer-item" onclick="closeDrawer(); openSubpage('feedback')">💬 Feedback & Suggestion</div>
-    <div class="drawer-item" onclick="closeDrawer(); openSubpage('privacy')">🔒 Privacy Policy</div>
-  </div>
-
-  <div class="search-page" id="searchPage">
-    <div class="search-top">
-      <button class="search-back" id="searchBackBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <button class="icon-btn" id="menuBtn" aria-label="menu">
+        <span></span><span></span><span></span>
       </button>
-      <div class="search-input-wrap">
-        <input type="text" id="citySearchInput" placeholder="শহরের নাম খুঁজুন...">
+      <div class="city-block">
+        <div class="city-name" id="cityName">Locating...</div>
+        <div class="dots"><span></span><span></span><span class="active"></span><span></span></div>
       </div>
     </div>
-    <div class="search-section-title" id="searchSectionTitle">জনপ্রিয় শহরসমূহ</div>
-    <div id="searchResults"></div>
-  </div>
-
-  <div class="subpage" id="subpage">
-    <div class="subpage-top">
-      <button class="subpage-back" onclick="closeSubpage()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      </button>
-      <div class="subpage-title" id="subpageTitle">শিরোনাম</div>
+    <div class="header-right">
+      <svg id="liveLocBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="cursor:pointer;"><path d="M12 2C8 2 5 5.5 5 9.5C5 14 12 22 12 22C12 22 19 14 19 9.5C19 5.5 16 2 12 2Z"/><circle cx="12" cy="9.5" r="2.3"/><circle cx="19.3" cy="4.3" r="3.2" fill="#0b0e16" stroke="currentColor"/><path d="M18 4.3h2.6M19.3 3v2.6" stroke="currentColor" stroke-width="1.2"/></svg>
+      <svg id="searchBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
     </div>
-    <div class="subpage-body" id="subpageBody"></div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- GLASS ORB -->
+  <div class="orb-wrap">
+    <div class="orb-ring"></div>
+    <div class="orb">
+      <div class="realfeel">RealFeel<sup style="font-size:10px;">®</sup> <span id="realfeel">--°</span></div>
+      <div class="temp-main"><span id="tempMain">--</span><span class="unit-c" id="tempUnitLabel">°C</span></div>
+      <div class="condition-row">
+        <span class="lo-hi lo">↓ <span id="lowTemp">--°</span></span>
+        <span id="conditionText">Loading…</span>
+        <span class="lo-hi hi">↑ <span id="highTemp">--°</span></span>
+      </div>
+      <div class="orb-stats">
+        <div>⌃ <span id="windDir">-</span></div>
+        <div>💨 <span id="windSpeed">--</span></div>
+        <div>💧 <span id="humidityTop">--%</span></div>
+      </div>
+      <div class="orb-icon" id="orbIcon">
+        <svg viewBox="0 0 64 40" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 30a10 10 0 0 1 0-20 13 13 0 0 1 25-3 9 9 0 0 1 7 16.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="precip-note" id="precipNote">Loading live forecast…</div>
+
+  <!-- HOURLY FORECAST -->
+  <div class="card" id="hourlyCard">
+    <div class="card-head">
+      <div class="card-head-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Hourly Forecast
+      </div>
+      <button class="more-btn">More</button>
+    </div>
+    <div class="hourly-row" id="hourlyRow"><!-- JS fills --></div>
+  </div>
+
+  <!-- DAILY FORECAST -->
+  <div class="card" id="dailyCard">
+    <div class="card-head">
+      <div class="card-head-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+        Daily Forecast
+      </div>
+      <button class="more-btn">More</button>
+    </div>
+    <div class="daily-banner hidden" id="dailyBanner"></div>
+    <div id="dailyRows"><!-- JS fills --></div>
+  </div>
+
+  <!-- AIR QUALITY -->
+  <div class="card" id="aqCard">
+    <div class="card-head">
+      <div class="card-head-title">🫧 Air Quality</div>
+    </div>
+    <div class="aq-top">
+      <div class="aq-emoji" id="aqEmoji">🙂</div>
+      <div>
+        <span class="aq-num" id="aqNum">--</span><span class="aq-label" id="aqLabel">--</span>
+        <div class="aq-pollutant">Main Pollutant: <strong id="mainPollutant">--</strong></div>
+      </div>
+    </div>
+    <div class="aq-bar"><div class="marker" id="aqMarker" style="left:0%;"></div></div>
+    <div class="aq-grid">
+      <div><div class="pollutant-name">NO2</div><div class="pollutant-bar" id="no2Bar"></div><div class="pollutant-val" id="no2Val">--</div></div>
+      <div><div class="pollutant-name">O3</div><div class="pollutant-bar" id="o3Bar"></div><div class="pollutant-val" id="o3Val">--</div></div>
+      <div><div class="pollutant-name">PM10</div><div class="pollutant-bar" id="pm10Bar"></div><div class="pollutant-val" id="pm10Val">--</div></div>
+      <div><div class="pollutant-name">PM2_5</div><div class="pollutant-bar" id="pm25Bar"></div><div class="pollutant-val" id="pm25Val">--</div></div>
+      <div><div class="pollutant-name">CO</div><div class="pollutant-bar" id="coBar"></div><div class="pollutant-val" id="coVal">--</div></div>
+      <div><div class="pollutant-name">SO2</div><div class="pollutant-bar" id="so2Bar"></div><div class="pollutant-val" id="so2Val">--</div></div>
+    </div>
+  </div>
+
+  <!-- PRESSURE + WIND -->
+  <div class="grid2" id="pressureWindGrid">
+    <div class="mini-card">
+      <div class="mini-card-title">⌇ PRESSURE</div>
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" opacity="0.15" stroke-width="6" stroke-dasharray="4 4"/>
+          <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="6" stroke-dasharray="40 400" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+        </svg>
+        <div class="gauge-center">
+          <span>↓</span>
+          <span class="num" id="pressureVal">--</span>
+          <span class="sub" id="pressureUnitLabel">mbar</span>
+        </div>
+      </div>
+      <div class="gauge-lowhigh"><span>Low</span><span>High</span></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-card-title">🧭 WIND</div>
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" opacity="0.2" stroke-width="2"/>
+          <g id="windArrowGroup" transform="rotate(0 60 60)">
+            <line x1="60" y1="14" x2="60" y2="60" stroke="currentColor" stroke-width="2.5"/>
+            <polygon points="60,8 55,20 65,20" fill="currentColor"/>
+            <line x1="60" y1="106" x2="60" y2="92" stroke="currentColor" stroke-width="2"/>
+          </g>
+        </svg>
+        <div class="gauge-center">
+          <span class="num" id="windSpeedVal">--</span>
+          <span class="sub" id="windUnitLabel">km/h</span>
+        </div>
+        <span style="position:absolute; left:2px; top:50%; transform:translateY(-50%); font-size:11px; opacity:0.6;">W</span>
+        <span style="position:absolute; right:2px; top:50%; transform:translateY(-50%); font-size:11px; opacity:0.6;">E</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- UV + VISIBILITY -->
+  <div class="grid2" id="uvVisGrid">
+    <div class="mini-card">
+      <div class="mini-card-title">☀ UV INDEX</div>
+      <div class="stat-val" id="uvVal">--</div>
+      <div style="font-size:13px; color:var(--text-muted);" id="uvLabel">--</div>
+      <div class="bar-track"><div class="knob" id="uvKnob" style="left:0%;"></div></div>
+      <div class="stat-desc" id="uvDesc">--</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-card-title">👁 VISIBILITY</div>
+      <div class="stat-val" id="visVal">-- km</div>
+      <div class="stat-desc" id="visDesc">--</div>
+    </div>
+  </div>
+
+  <!-- PRECIPITATION + HUMIDITY -->
+  <div class="grid2" id="precipHumGrid">
+    <div class="mini-card">
+      <div class="mini-card-title">☂ PRECIPITATION</div>
+      <div class="stat-val" id="precipVal">-- cm</div>
+      <div class="stat-desc">in last 24 hours</div>
+      <div class="stat-desc" style="margin-top:8px;" id="precipNext24"><strong>--</strong> precipitation is expected in the next 24 hours.</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-card-title">💧 HUMIDITY</div>
+      <div class="stat-val" id="humidityVal">--%</div>
+      <div class="stat-desc">The dew point is <strong id="dewPoint">--°</strong> right now.</div>
+    </div>
+  </div>
+
+  <!-- LIVE RADAR -->
+  <div class="card" id="radarCard" style="cursor:pointer;">
+    <div class="card-head">
+      <div class="card-head-title">📡 Live Weather Radar</div>
+      <span style="font-size:20px; opacity:0.7;">›</span>
+    </div>
+  </div>
+
+  <!-- SUN & MOON -->
+  <div class="card" id="sunMoonCard">
+    <div class="card-head">
+      <div class="card-head-title">☀ Sun &amp; Moon</div>
+      <button class="more-btn">More</button>
+    </div>
+    <div class="sun-arc-wrap">
+      <svg viewBox="0 0 320 130">
+        <path d="M20 110 Q160 -10 300 110" fill="none" stroke="#e6d35a" stroke-width="2.5" stroke-dasharray="4 5"/>
+        <path d="M20 110 Q160 -10 300 110 L300 110 L20 110 Z" fill="#8a8a3a" opacity="0.35"/>
+        <circle cx="20" cy="110" r="6" fill="#e6d35a"/>
+        <circle cx="300" cy="110" r="10" fill="#f2d24a"/>
+        <text x="160" y="80" fill="currentColor" font-size="17" text-anchor="middle" font-family="Segoe UI, sans-serif" id="dayLengthText">--</text>
+      </svg>
+      <div class="arc-times">
+        <span id="sunrise">--:--</span>
+        <span id="sunset">--:--</span>
+      </div>
+    </div>
+    <div class="moon-row">
+      <div class="moon-icon"></div>
+      <div class="moon-info">
+        <div class="moon-title" id="moonPhase">--</div>
+        <div class="moon-sub">
+          <span id="moonLength">Illumination: --%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALLERGY -->
+  <div class="card" id="allergyCard">
+    <div class="card-head">
+      <div class="card-head-title">🌼 Allergy Outlook</div>
+      <button class="more-btn">More</button>
+    </div>
+    <div class="allergy-row"><span>Grass Pollen</span><span class="allergy-low">Low</span></div>
+    <div class="allergy-row"><span>Mold</span><span class="allergy-low">Low</span></div>
+    <div class="allergy-row"><span>Ragweed Pollen</span><span class="allergy-low">Low</span></div>
+    <div class="allergy-row"><span>Tree Pollen</span><span class="allergy-low">Low</span></div>
+  </div>
+
+  <!-- PREMIUM PROMO -->
+  <div class="premium-card" id="premiumPromo">
+    <div class="premium-head">
+      <div class="premium-title">👑 WEATHER PREMIUM</div>
+      <button class="premium-close" onclick="this.closest('.premium-card').style.display='none';">✕</button>
+    </div>
+    <div class="premium-feature">🔒 Ad-free experience</div>
+    <div class="premium-feature">🔒 120-hour weather forecast</div>
+    <div class="premium-feature">🔒 45-day weather forecast</div>
+    <div class="premium-feature">🔒 More</div>
+    <button class="premium-cta" onclick="closeDrawer(); openSubpage('premium');">Show all Premium Features</button>
+  </div>
+
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay"></div>
+
+<!-- SIDE DRAWER -->
+<div class="drawer" id="drawer">
+  <h1>WEATHER</h1>
+  <div class="drawer-item" onclick="closeDrawer(); openSubpage('location');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2C8 2 5 5.5 5 9.5C5 14 12 22 12 22C12 22 19 14 19 9.5C19 5.5 16 2 12 2Z"/><circle cx="12" cy="9.5" r="2.3"/></svg> Manage Location</div>
+  <div class="drawer-item" onclick="closeDrawer(); openSubpage('settings');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.97 7.97 0 0 0 0-2l2-1.6-2-3.4-2.4.7a8 8 0 0 0-1.7-1L15 3h-6l-.3 2.7a8 8 0 0 0-1.7 1l-2.4-.7-2 3.4L4.6 11a7.97 7.97 0 0 0 0 2l-2 1.6 2 3.4 2.4-.7a8 8 0 0 0 1.7 1L9 21h6l.3-2.7a8 8 0 0 0 1.7-1l2.4.7 2-3.4z"/></svg> Settings</div>
+  <div class="drawer-item" onclick="closeDrawer(); openSubpage('units');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="8" height="16" rx="1"/><rect x="13" y="4" width="8" height="16" rx="1"/></svg> Units</div>
+  <div class="drawer-item" onclick="closeDrawer(); openSubpage('customize');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Customize</div>
+  <div class="drawer-item disabled" id="locPermItem" onclick="showLocationPermModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg> <span class="label-text">Location permissions required</span></div>
+  <div class="drawer-divider"></div>
+  <div class="drawer-premium" onclick="closeDrawer(); openSubpage('premium');">
+    <span style="display:flex; align-items:center; gap:22px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:22px;height:22px;"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+      WEATHER PREMIUM
+    </span>
+    <span class="crown" style="font-size:24px;">👑</span>
+  </div>
+  <div class="drawer-item" onclick="closeDrawer(); openSubpage('rate');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 17.3l-6.2 3.3 1.2-6.9L2 9l7-1L12 1.5 15 8l7 1-5 4.7 1.2 6.9z"/></svg> Rate Me</div>
+  <div class="drawer-item" onclick="closeDrawer(); openSubpage('feedback');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 6l9 7 9-7"/></svg> Feedback And Suggestion</div>
+  <div class="drawer-item" onclick="closeDrawer(); openSubpage('privacy');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h8l4 4v14H7z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg> Privacy Policy</div>
+</div>
+
+<!-- LOCATION PERMISSION MODAL -->
+<div class="perm-overlay" id="permOverlay" onclick="hideLocationPermModal(event)">
+  <div class="perm-modal" onclick="event.stopPropagation()">
+    <div class="perm-modal-title">Location permission required</div>
+    <div class="perm-modal-body">
+      <p>Weather Pro needs access to your location to show accurate weather for where you are.</p>
+      <p class="perm-modal-steps-label">Steps to allow location access:</p>
+      <ul>
+        <li>Tap <strong>Settings</strong> below</li>
+        <li>When your browser asks for location, choose <strong>Allow</strong></li>
+        <li>If nothing appears, open your browser's site settings and set Location to <strong>Allow</strong> for this page</li>
+      </ul>
+    </div>
+    <div class="perm-modal-actions">
+      <button class="perm-btn-cancel" onclick="hideLocationPermModal()">Cancel</button>
+      <button class="perm-btn-settings" onclick="hideLocationPermModal(); useMyLocation();">Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH PAGE -->
+<div class="search-page" id="searchPage">
+  <div class="search-top">
+    <button class="search-back" id="searchBackBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="search-input-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="citySearchInput" placeholder="Enter the name of any city, town or area">
+    </div>
+  </div>
+  <div class="search-section-title" id="searchSectionTitle">Popular Locations</div>
+  <div id="searchResults"><!-- JS fills --></div>
+</div>
+
+<!-- SUBPAGE (Manage Location / Settings / Units / Customize / Premium / Rate / Feedback / Privacy) -->
+<div class="subpage" id="subpage">
+  <div class="subpage-top">
+    <button class="subpage-back" onclick="closeSubpage()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="subpage-title" id="subpageTitle"></div>
+  </div>
+  <div class="subpage-body" id="subpageBody"><!-- JS fills --></div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
