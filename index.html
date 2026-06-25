@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Pro</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+  <div class="stars"></div>
+
+  <div class="app">
+    <header class="header">
+      <div class="header-left">
+        <button class="icon-btn" id="menuBtn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="city-block">
+          <div class="city-name" id="cityName">লোডিং...</div>
+          <div class="dots">
+            <span class="active"></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <svg id="liveLocBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+        <svg id="searchBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+    </header>
+
+    <div class="orb-wrap">
+      <div class="orb-ring"></div>
+      <div class="orb">
+        <div class="realfeel">RealFeel <span id="realfeel">--°</span></div>
+        <div class="temp-main"><span id="tempMain">--</span><span id="tempUnitLabel">°C</span></div>
+        <div class="condition-row">
+          <span id="conditionText">লোডিং...</span>
+          <div class="lo-hi">
+            <span class="hi" id="highTemp">--°</span> / <span class="lo" id="lowTemp">--°</span>
+          </div>
+        </div>
+        <div class="orb-icon" id="orbIcon"></div>
+        <div class="orb-stats">
+          <div>💨 <span id="windSpeed">--</span> (<span id="windDir">--</span>)</div>
+          <div>💧 <span id="humidityTop">--</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="precip-note" id="precipNote">বৃষ্টির কোনো সম্ভাবনা নেই</div>
+
+    <div class="card" id="hourlyCard">
+      <div class="card-head">
+        <div class="card-head-title">⏰ প্রতি ঘণ্টার পূর্বাভাস</div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="hourly-row" id="hourlyRow"></div>
+    </div>
+
+    <div class="card" id="dailyCard">
+      <div class="card-head">
+        <div class="card-head-title">📅 আগামী কয়েকদিনের পূর্বাভাস</div>
+      </div>
+      <div class="daily-banner hidden" id="dailyBanner"></div>
+      <div id="dailyRows"></div>
+    </div>
+
+    <div class="card" id="aqCard">
+      <div class="card-head">
+        <div class="card-head-title">🍃 বায়ুর মান (AQI)</div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="aq-top">
+        <div class="aq-emoji" id="aqEmoji">😐</div>
+        <div>
+          <div class="aq-num" id="aqNum">--</div>
+          <div class="aq-label" id="aqLabel">লোডিং...</div>
+          <div class="aq-pollutant">প্রধান দূষক: <span id="mainPollutant">PM2.5</span></div>
+        </div>
+      </div>
+      <div class="aq-bar"><div class="marker" id="aqMarker"></div></div>
+      <div class="aq-grid">
+        <div><div class="pollutant-name">PM2.5</div><div class="pollutant-bar" id="pm25Bar"></div><div class="pollutant-val" id="pm25Val">--</div></div>
+        <div><div class="pollutant-name">PM10</div><div class="pollutant-bar" id="pm10Bar"></div><div class="pollutant-val" id="pm10Val">--</div></div>
+        <div><div class="pollutant-name">NO₂</div><div class="pollutant-bar" id="no2Bar"></div><div class="pollutant-val" id="no2Val">--</div></div>
+        <div><div class="pollutant-name">O₃</div><div class="pollutant-bar" id="o3Bar"></div><div class="pollutant-val" id="o3Val">--</div></div>
+        <div><div class="pollutant-name">SO₂</div><div class="pollutant-bar" id="so2Bar"></div><div class="pollutant-val" id="so2Val">--</div></div>
+        <div><div class="pollutant-name">CO</div><div class="pollutant-bar" id="coBar"></div><div class="pollutant-val" id="coVal">--</div></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="mini-card" id="pressureWindGrid">
+        <div class="mini-card-title">💨 বাতাস ও চাপ</div>
+        <div class="stat-val" id="windSpeedVal">--</div>
+        <div class="stat-desc"><span id="windUnitLabel">km/h</span> চাপ: <span id="pressureVal">--</span> <span id="pressureUnitLabel">mbar</span></div>
+      </div>
+      <div class="mini-card" id="uvVisGrid">
+        <div class="mini-card-title">☀️ UV ইনডেক্স ও ভিজিবিলিটি</div>
+        <div class="stat-val" id="uvVal">--</div>
+        <div class="stat-desc"><span id="uvLabel">--</span> • দৃষ্টিসীমা: <span id="visVal">--</span></div>
+        <div class="stat-desc" id="uvDesc" style="font-size:11px; margin-top:4px;"></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="mini-card" id="precipHumGrid">
+        <div class="mini-card-title">💧 আর্দ্রতা ও অধঃক্ষেপণ</div>
+        <div class="stat-val" id="humidityVal">--</div>
+        <div class="stat-desc">আর্দ্রতা • গত ২৪ ঘণ্টায় বৃষ্টি: <span id="precipVal">--</span></div>
+      </div>
+      <div class="mini-card" id="sunMoonCard">
+        <div class="mini-card-title">🌙 সূর্য ও চন্দ্র</div>
+        <div class="stat-desc">সূর্যোদয়: <span id="sunrise">--</span></div>
+        <div class="stat-desc">সূর্যাস্ত: <span id="sunset">--</span></div>
+        <div class="stat-desc">দিন স্থায়িত্ব: <span id="dayLengthText">--</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+  <div class="drawer" id="drawer">
+    <h1>Weather Pro</h1>
+    <div class="drawer-divider"></div>
+    <div class="drawer-item" id="installAppItem" style="display: none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span>Install Weather App</span>
+    </div>
+    <div class="drawer-item" onclick="closeDrawer(); openSubpage('location')">📍 Manage Location</div>
+    <div class="drawer-item" onclick="closeDrawer(); openSubpage('customize')">🎨 Customize Layout</div>
+    <div class="drawer-item" onclick="closeDrawer(); openSubpage('units')">⚙️ Change Units</div>
+    <div class="drawer-item" onclick="closeDrawer(); openSubpage('settings')">🔧 App Settings</div>
+    <div class="drawer-divider"></div>
+    <div class="drawer-item" onclick="closeDrawer(); openSubpage('rate')">★ Rate This App</div>
+    <div class="drawer-item" onclick="closeDrawer(); openSubpage('feedback')">💬 Feedback & Suggestion</div>
+    <div class="drawer-item" onclick="closeDrawer(); openSubpage('privacy')">🔒 Privacy Policy</div>
+  </div>
+
+  <div class="search-page" id="searchPage">
+    <div class="search-top">
+      <button class="search-back" id="searchBackBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </button>
+      <div class="search-input-wrap">
+        <input type="text" id="citySearchInput" placeholder="শহরের নাম খুঁজুন...">
+      </div>
+    </div>
+    <div class="search-section-title" id="searchSectionTitle">জনপ্রিয় শহরসমূহ</div>
+    <div id="searchResults"></div>
+  </div>
+
+  <div class="subpage" id="subpage">
+    <div class="subpage-top">
+      <button class="subpage-back" onclick="closeSubpage()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </button>
+      <div class="subpage-title" id="subpageTitle">শিরোনাম</div>
+    </div>
+    <div class="subpage-body" id="subpageBody"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
